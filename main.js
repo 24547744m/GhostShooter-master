@@ -1354,42 +1354,56 @@ var FactoryMonstruos = (function () {
     }
     FactoryMonstruos.prototype.crearMonstruo = function (value) {
         if (value == 'zombie1') {
-            var monster = new MonsterZombie();
+            return new MonsterZombie();
         }
         else if (value == 'zombie2') {
-            var monster = new MonsterZombieDos();
+            return new MonsterZombieDos();
         }
         else {
-            var monster = new MonsterRobot();
+            return new MonsterRobot();
         }
     };
     return FactoryMonstruos;
 })();
 var Monster = (function (_super) {
     __extends(Monster, _super);
-    function Monster() {
-        _super.apply(this, arguments);
+    function Monster(game, x, y, key, VIDES, player) {
+        _super.call(this, game, x, y, key, null);
+        this.game = game;
+        this.game.physics.enable(this, Phaser.Physics.ARCADE);
+        this.anchor.setTo(0.5, 0.5);
+        this.health = VIDES;
+        this.angle = game.rnd.angle();
+        this.checkWorldBounds = true;
+        this.events.onOutOfBounds.add(this.resetMonster);
+        this.player = player;
     }
+    Monster.prototype.resetMonster = function () {
+        this.rotation = this.game.physics.arcade.angleBetween(this.player);
+    };
     return Monster;
 })(Phaser.Sprite);
 var MonsterZombie = (function (_super) {
     __extends(MonsterZombie, _super);
-    function MonsterZombie() {
-        _super.apply(this, arguments);
+    function MonsterZombie(game, x, y, key, VIDES, player) {
+        _super.call(this, game, x, y, key, VIDES, player);
+        this.frame = 'zombie';
     }
     return MonsterZombie;
 })(Monster);
 var MonsterZombieDos = (function (_super) {
     __extends(MonsterZombieDos, _super);
-    function MonsterZombieDos() {
-        _super.apply(this, arguments);
+    function MonsterZombieDos(game, x, y, key, VIDES, player) {
+        _super.call(this, game, x, y, key, VIDES, player);
+        this.frame = 'zombie2';
     }
     return MonsterZombieDos;
 })(Monster);
 var MonsterRobot = (function (_super) {
     __extends(MonsterRobot, _super);
-    function MonsterRobot() {
-        _super.apply(this, arguments);
+    function MonsterRobot(game, x, y, key, VIDES, player) {
+        _super.call(this, game, x, y, key, VIDES, player);
+        this.frame = 'robot';
     }
     return MonsterRobot;
 })(Monster);
