@@ -1352,15 +1352,15 @@ var mainState = (function (_super) {
 var FactoryMonstruos = (function () {
     function FactoryMonstruos() {
     }
-    FactoryMonstruos.prototype.crearMonstruo = function (value) {
+    FactoryMonstruos.prototype.crearMonstruo = function (game, x, y, key, VIDES, player, value) {
         if (value == 'zombie1') {
-            return new MonsterZombie();
+            return new MonsterZombie(game, x, y, key, VIDES, player);
         }
         else if (value == 'zombie2') {
-            return new MonsterZombieDos();
+            return new MonsterZombieDos(game, x, y, key, VIDES, player);
         }
         else {
-            return new MonsterRobot();
+            return new MonsterRobot(game, x, y, key, VIDES, player);
         }
     };
     return FactoryMonstruos;

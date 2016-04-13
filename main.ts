@@ -456,13 +456,13 @@ class mainState extends Phaser.State {
  *PATRÓ FACTORY ;
  */
 class FactoryMonstruos {
-    crearMonstruo(value:String):Monster{
+    crearMonstruo(game:Phaser.Game, x:number, y:number, key:string|Phaser.RenderTexture|Phaser.BitmapData|PIXI.Texture,VIDES:number,player:Player,value:String):Monster{
         if(value=='zombie1'){
-           return new MonsterZombie();
+           return new MonsterZombie(game,x,y,key,VIDES,player);
         }else if(value=='zombie2'){
-            return new MonsterZombieDos()
+            return new MonsterZombieDos(game,x,y,key,VIDES,player)
         }else{
-            return new MonsterRobot();
+            return new MonsterRobot(game,x,y,key,VIDES,player);
         }
     }
 }
