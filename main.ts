@@ -14,7 +14,7 @@ class mainState extends Phaser.State {
     private livesText:Phaser.Text;
     private stateText:Phaser.Text;
     private gamepad:Gamepads.GamePad;
-
+    private factoryMonster:FactoryMonstruos;
 
     private PLAYER_ACCELERATION = 500;
     private PLAYER_MAX_SPEED = 400; // pixels/second
@@ -154,18 +154,14 @@ class mainState extends Phaser.State {
         this.monsters.enableBody = true;
         this.monsters.physicsBodyType = Phaser.Physics.ARCADE;
 
-        this.tilemap.createFromObjects('monsters', 541, 'zombie1', 0, true, false, this.monsters);
+        //this.tilemap.createFromObjects('monsters', 541, 'zombie1', 0, true, false, this.monsters);
 
-
-        this.monsters.setAll('anchor.x', 0.5);
-        this.monsters.setAll('anchor.y', 0.5);
-        this.monsters.setAll('health', this.MONSTER_HEALTH);
-        this.monsters.forEach(this.setRandomAngle, this);
-        //this.rnd.pick(['zombie1', 'zombie2', 'robot'])
-        this.monsters.forEach(
-            (explosion:Phaser.Sprite) => {
-            explosion.loadTexture(this.rnd.pick(['zombie1', 'zombie2', 'robot']));
-        }, this);
+        this.factoryMonster = new FactoryMonstruos();
+        var tmpMonster;
+        for (var i = 0; i < 35; i++){
+            tmpMonster = this.factoryMonster.crearMonstruo(this.game, this.rnd.pick(['zombie1', 'zombie2', 'robot']));
+            this.monsters.add(tmpMonster);
+        }
 
 
         this.monsters.setAll('checkWorldBounds', true);
@@ -358,8 +354,8 @@ class mainState extends Phaser.State {
             this.input.activePointer
         );
     };
-    /*
-    Comportament habitual del jugador
+    /**
+     * Comportament habitual del jugador
      */
     private movePlayer() {
         var moveWithKeyboard = function () {
@@ -456,22 +452,21 @@ class mainState extends Phaser.State {
  *PATRÓ FACTORY ;
  */
 class FactoryMonstruos {
-    crearMonstruo(game:Phaser.Game, x:number, y:number, key:string|Phaser.RenderTexture|Phaser.BitmapData|PIXI.Texture,VIDES:number,player:Player,value:String):Monster{
+    crearMonstruo(game:Phaser.Game,value:String) : Monster{
         if(value=='zombie1'){
-           return new MonsterZombie(game,x,y,key,VIDES,player);
+           return new MonsterZombie(game);
         }else if(value=='zombie2'){
-            return new MonsterZombieDos(game,x,y,key,VIDES,player)
+            return new MonsterZombieDos(game)
         }else{
-            return new MonsterRobot(game,x,y,key,VIDES,player);
+            return new MonsterRobot(game);
         }
     }
 }
-abstract class Monster extends Phaser.Sprite {
 
-    player:Player;
+abstract class Monster extends Phaser.Sprite {
     game:ShooterGame;
 
-    constructor(game:Phaser.Game, x:number, y:number, key:string|Phaser.RenderTexture|Phaser.BitmapData|PIXI.Texture,VIDES:number,player:Player){
+    constructor(game:Phaser.Game, x:number, y:number, key:string|Phaser.RenderTexture|Phaser.BitmapData|PIXI.Texture,VIDES:number){
         super(game, x, y, key, null);
         this.game = game;
         this.game.physics.enable(this, Phaser.Physics.ARCADE);
@@ -480,32 +475,27 @@ abstract class Monster extends Phaser.Sprite {
         this.angle =  game.rnd.angle();
         this.checkWorldBounds=true;
         this.events.onOutOfBounds.add(this.resetMonster);
-        this.player=player;
     }
 
-    resetMonster() {
-        this.rotation = this.game.physics.arcade.angleBetween(
-            this.player
-        );
+    resetMonster(monster:Phaser.Sprite) {
+        monster.rotation = this.game.physics.arcade.angleBetween(monster, this.game.player);
     }
 }
 class MonsterZombie extends Monster{
-    constructor(game:Phaser.Game, x:number, y:number, key:string|Phaser.RenderTexture|Phaser.BitmapData|PIXI.Texture,VIDES:number ,player:Player){
-        super(game,x,y,key,VIDES,player);
-        this.frame='zombie';
+    constructor(game:Phaser.Game){
+        super(game,150,150,'zombie1',3);
     }
 }
 
 class MonsterZombieDos extends Monster{
-    constructor(game:Phaser.Game, x:number, y:number, key:string|Phaser.RenderTexture|Phaser.BitmapData|PIXI.Texture,VIDES:number ,player:Player ){
-        super(game,x,y,key,VIDES,player);
-        this.frame='zombie2';
+    constructor(game:Phaser.Game){
+        super(game,280,120,'zombie2',4);
     }
 }
 class MonsterRobot extends Monster{
-    constructor(game:Phaser.Game, x:number, y:number, key:string|Phaser.RenderTexture|Phaser.BitmapData|PIXI.Texture,VIDES:number ,player:Player){
-        super(game,x,y,key,VIDES,player);
-        this.frame='robot';
+    constructor(game:Phaser.Game){
+        super(game,452,235,'robot',5);
+
     }
 }
 

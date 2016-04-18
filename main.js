@@ -1077,19 +1077,16 @@ var mainState = (function (_super) {
      * Crea monstres ( factory)
      */
     mainState.prototype.createMonsters = function () {
-        var _this = this;
         this.monsters = this.add.group();
         this.monsters.enableBody = true;
         this.monsters.physicsBodyType = Phaser.Physics.ARCADE;
-        this.tilemap.createFromObjects('monsters', 541, 'zombie1', 0, true, false, this.monsters);
-        this.monsters.setAll('anchor.x', 0.5);
-        this.monsters.setAll('anchor.y', 0.5);
-        this.monsters.setAll('health', this.MONSTER_HEALTH);
-        this.monsters.forEach(this.setRandomAngle, this);
-        //this.rnd.pick(['zombie1', 'zombie2', 'robot'])
-        this.monsters.forEach(function (explosion) {
-            explosion.loadTexture(_this.rnd.pick(['zombie1', 'zombie2', 'robot']));
-        }, this);
+        //this.tilemap.createFromObjects('monsters', 541, 'zombie1', 0, true, false, this.monsters);
+        this.factoryMonster = new FactoryMonstruos();
+        var tmpMonster;
+        for (var i = 0; i < 35; i++) {
+            tmpMonster = this.factoryMonster.crearMonstruo(this.game, this.rnd.pick(['zombie1', 'zombie2', 'robot']));
+            this.monsters.add(tmpMonster);
+        }
         this.monsters.setAll('checkWorldBounds', true);
         this.monsters.callAll('events.onOutOfBounds.add', 'events.onOutOfBounds', this.resetMonster, this);
     };
@@ -1255,8 +1252,8 @@ var mainState = (function (_super) {
         this.player.rotation = this.physics.arcade.angleToPointer(this.player, this.input.activePointer);
     };
     ;
-    /*
-    Comportament habitual del jugador
+    /**
+     * Comportament habitual del jugador
      */
     mainState.prototype.movePlayer = function () {
         var moveWithKeyboard = function () {
@@ -1352,22 +1349,22 @@ var mainState = (function (_super) {
 var FactoryMonstruos = (function () {
     function FactoryMonstruos() {
     }
-    FactoryMonstruos.prototype.crearMonstruo = function (game, x, y, key, VIDES, player, value) {
+    FactoryMonstruos.prototype.crearMonstruo = function (game, value) {
         if (value == 'zombie1') {
-            return new MonsterZombie(game, x, y, key, VIDES, player);
+            return new MonsterZombie(game);
         }
         else if (value == 'zombie2') {
-            return new MonsterZombieDos(game, x, y, key, VIDES, player);
+            return new MonsterZombieDos(game);
         }
         else {
-            return new MonsterRobot(game, x, y, key, VIDES, player);
+            return new MonsterRobot(game);
         }
     };
     return FactoryMonstruos;
 })();
 var Monster = (function (_super) {
     __extends(Monster, _super);
-    function Monster(game, x, y, key, VIDES, player) {
+    function Monster(game, x, y, key, VIDES) {
         _super.call(this, game, x, y, key, null);
         this.game = game;
         this.game.physics.enable(this, Phaser.Physics.ARCADE);
@@ -1376,34 +1373,30 @@ var Monster = (function (_super) {
         this.angle = game.rnd.angle();
         this.checkWorldBounds = true;
         this.events.onOutOfBounds.add(this.resetMonster);
-        this.player = player;
     }
-    Monster.prototype.resetMonster = function () {
-        this.rotation = this.game.physics.arcade.angleBetween(this.player);
+    Monster.prototype.resetMonster = function (monster) {
+        monster.rotation = this.game.physics.arcade.angleBetween(monster, this.game.player);
     };
     return Monster;
 })(Phaser.Sprite);
 var MonsterZombie = (function (_super) {
     __extends(MonsterZombie, _super);
-    function MonsterZombie(game, x, y, key, VIDES, player) {
-        _super.call(this, game, x, y, key, VIDES, player);
-        this.frame = 'zombie';
+    function MonsterZombie(game) {
+        _super.call(this, game, 150, 150, 'zombie1', 3);
     }
     return MonsterZombie;
 })(Monster);
 var MonsterZombieDos = (function (_super) {
     __extends(MonsterZombieDos, _super);
-    function MonsterZombieDos(game, x, y, key, VIDES, player) {
-        _super.call(this, game, x, y, key, VIDES, player);
-        this.frame = 'zombie2';
+    function MonsterZombieDos(game) {
+        _super.call(this, game, 280, 120, 'zombie2', 4);
     }
     return MonsterZombieDos;
 })(Monster);
 var MonsterRobot = (function (_super) {
     __extends(MonsterRobot, _super);
-    function MonsterRobot(game, x, y, key, VIDES, player) {
-        _super.call(this, game, x, y, key, VIDES, player);
-        this.frame = 'robot';
+    function MonsterRobot(game) {
+        _super.call(this, game, 452, 235, 'robot', 5);
     }
     return MonsterRobot;
 })(Monster);
